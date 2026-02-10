@@ -8,9 +8,12 @@
   "arch": ["amd64", "aarch64", "armv7"],
 
   "init": false,
+
   "hassio_api": true,
+  "homeassistant_api": true,
   "hassio_role": "default",
   "services": ["mqtt:need"],
+
   "host_network": false,
 
   "devices": [
@@ -20,10 +23,22 @@
   "map": ["data:rw"],
 
   "options": {
-    "serial_ports": ["", "", ""]
+    "serial_ports": ["", "", ""],
+
+    "mqtt_host": "core-mosquitto",
+    "mqtt_port": 1883,
+    "mqtt_user": "",
+    "mqtt_pass": "",
+    "mqtt_prefix": "voltronic"
   },
 
   "schema": {
-    "serial_ports": ["str?", "str?", "str?"]
+    "serial_ports": ["str?", "str?", "str?"],
+
+    "mqtt_host": "str",
+    "mqtt_port": "int(1,65535)",
+    "mqtt_user": "str?",
+    "mqtt_pass": "password?",
+    "mqtt_prefix": "str?"
   }
 }
