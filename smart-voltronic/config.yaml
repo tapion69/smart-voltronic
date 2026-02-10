@@ -1,7 +1,7 @@
 name: "Smart Voltronic Node-RED"
 version: "1.0.0"
 slug: smart_voltronic
-description: "Node-RED Voltronic plug & play: flow mis à jour via MAJ add-on"
+description: "Node-RED Voltronic plug & play"
 arch:
   - aarch64
   - amd64
@@ -12,7 +12,9 @@ startup: services
 boot: auto
 init: false
 
-privileged: true
+privileged:
+  - SYS_ADMIN
+
 devices:
   - /dev/ttyUSB0
   - /dev/ttyUSB1
