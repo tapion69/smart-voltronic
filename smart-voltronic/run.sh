@@ -21,7 +21,7 @@ logi "Smart Voltronic: init..."
 OPTS="/data/options.json"
 
 # Crée options.json si absent (premier démarrage / install manuelle)
-# Ici on ne stocke QUE serial_ports (MQTT peut venir de services mqtt)
+# MQTT vient de préférence de services mqtt, sinon fallback options.json
 if [ ! -f "$OPTS" ]; then
   logw "options.json introuvable, création avec valeurs par défaut: $OPTS"
   cat > "$OPTS" <<'JSON'
@@ -53,13 +53,22 @@ MQTT_PORT=""
 MQTT_USER=""
 MQTT_PASS=""
 
-if [ -f /usr/lib/bashio/bashio.sh ] && bashio::services.available mqtt >/dev/null 2>&1; then
-  MQTT_HOST="$(bashio::services mqtt host)"
-  MQTT_PORT="$(bashio::services mqtt port)"
-  MQTT_USER="$(bashio::services mqtt username)"
-  MQTT_PASS="$(bashio::services mqtt password)"
-  logi "MQTT (HA service): ${MQTT_HOST}:${MQTT_PORT} (user: ${MQTT_USER:-<none>})"
-else
+if [ -f /usr/lib/bashio/bashio.sh ]; then
+  # Si l'API supervisor est accessible (config.json: hassio_api: true) et mqtt:need
+  if bashio::services.available mqtt >/dev/null 2>&1; then
+    MQTT_HOST="$(bashio::services mqtt host)"
+    MQTT_PORT="$(bashio::services mqtt port)"
+    MQTT_USER="$(bashio::services mqtt username)"
+    MQTT_PASS="$(bashio::services mqtt password)"
+    logi "MQTT (HA service): ${MQTT_HOST}:${MQTT_PORT} (user: ${MQTT_USER:-<none>})"
+  else
+    # Cas fréquent si hassio_api n'est pas activé -> on bascule en fallback
+    logw "MQTT service indisponible (vérifie config.json: hassio_api: true et services: [\"mqtt:need\"])"
+  fi
+fi
+
+# Fallback si pas récupéré via services
+if [ -z "${MQTT_HOST}" ] || [ -z "${MQTT_PORT}" ]; then
   MQTT_HOST="$(jq_str_or '.mqtt_host' 'core-mosquitto')"
   MQTT_PORT="$(jq_int_or '.mqtt_port' 1883)"
   MQTT_USER="$(jq -r '.mqtt_user // ""' "$OPTS")"
@@ -100,57 +109,53 @@ sed -i "s/__SERIAL_1__/$(esc "$SERIAL_1")/g" /data/flows.json
 sed -i "s/__SERIAL_2__/$(esc "$SERIAL_2")/g" /data/flows.json
 sed -i "s/__SERIAL_3__/$(esc "$SERIAL_3")/g" /data/flows.json
 
-# --- Suppression dynamique des ports non configurés (robuste, basé sur NAME) ---
-remove_serial_group_if_empty() {
-  local n="$1"
-  local port="$2"
+# --- Suppression dynamique des ports non configurés (robuste, sans emojis, sans IDs codés) ---
+# Si une config "serial-port" a un champ serialport vide/missing, on retire:
+# - la config
+# - tous les serial in/out qui la référencent
+cleanup_unconfigured_serial_ports() {
+  local tmp="/data/flows.tmp.json"
 
-  local in_name="📥 Serial In ${n}"
-  local out_name="📤 Serial Out ${n}"
+  # Liste des configs invalides
+  local bad_cfg_ids
+  bad_cfg_ids="$(jq -r '
+    [ .[]
+      | select(.type=="serial-port")
+      | select((.serialport? // "") | tostring | length == 0)
+      | .id
+    ] | .[]
+  ' /data/flows.json 2>/dev/null || true)"
 
-  if [ -n "$port" ]; then
+  if [ -z "$bad_cfg_ids" ]; then
+    logi "Aucune config serial-port vide détectée"
     return 0
   fi
 
-  logw "Serial${n} vide -> suppression de '${in_name}', '${out_name}' + config associée"
+  logw "Configs serial-port vides détectées (suppression): $(echo "$bad_cfg_ids" | tr '\n' ' ')"
 
-  local tmp="/data/flows.tmp.json"
+  # Transforme la liste en tableau JSON
+  local bad_json
+  bad_json="$(printf '%s\n' "$bad_cfg_ids" | jq -R . | jq -s .)"
 
-  local cfg_ids
-  cfg_ids="$(jq -r --arg in "$in_name" --arg out "$out_name" '
-    [ .[]
-      | select((.type=="serial in" and .name==$in) or (.type=="serial out" and .name==$out))
-      | .serial
-    ]
-    | unique
-    | .[]
-  ' /data/flows.json 2>/dev/null || true)"
-
-  jq --arg in "$in_name" --arg out "$out_name" '
-    map(select(!((.type=="serial in" and .name==$in) or (.type=="serial out" and .name==$out))))
+  # Supprimer serial in/out qui référencent ces configs
+  jq --argjson bad "$bad_json" '
+    map(
+      select(
+        !(
+          (.type=="serial in" or .type=="serial out") and
+          (.serial? // "" | IN($bad[]))
+        )
+      )
+    )
   ' /data/flows.json > "$tmp" && mv "$tmp" /data/flows.json
 
-  if [ -n "$cfg_ids" ]; then
-    while IFS= read -r cfg; do
-      [ -z "$cfg" ] && continue
-
-      if jq -e --arg cfg "$cfg" '
-          any(.[]; ((.type=="serial in" or .type=="serial out") and (.serial==$cfg)))
-        ' /data/flows.json >/dev/null 2>&1; then
-        logw "Config serial-port ${cfg} encore utilisée ailleurs -> conservation"
-      else
-        logi "Suppression config serial-port ${cfg} (plus utilisée)"
-        jq --arg cfg "$cfg" '
-          map(select(!(.type=="serial-port" and .id==$cfg)))
-        ' /data/flows.json > "$tmp" && mv "$tmp" /data/flows.json
-      fi
-    done <<< "$cfg_ids"
-  fi
+  # Supprimer les configs serial-port elles-mêmes
+  jq --argjson bad "$bad_json" '
+    map(select(!( .type=="serial-port" and (.id | IN($bad[])) )))
+  ' /data/flows.json > "$tmp" && mv "$tmp" /data/flows.json
 }
 
-remove_serial_group_if_empty 3 "$SERIAL_3"
-remove_serial_group_if_empty 2 "$SERIAL_2"
-remove_serial_group_if_empty 1 "$SERIAL_1"
+cleanup_unconfigured_serial_ports
 
 # Vérifier qu'il ne reste pas de placeholders
 if grep -q "__MQTT_HOST__\|__MQTT_PORT__\|__SERIAL_1__\|__SERIAL_2__\|__SERIAL_3__" /data/flows.json; then
