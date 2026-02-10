@@ -159,7 +159,3 @@ fi
 
 logi "Starting Node-RED..."
 exec node-red --userDir /data --settings /addon/settings.js
-
-
-logi "Starting Node-RED..."
-exec node-red --userDir /data --settings /addon/settings.js
