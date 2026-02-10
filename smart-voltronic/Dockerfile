@@ -24,4 +24,4 @@ COPY . /addon
 RUN chmod a+x /addon/run.sh
 
 WORKDIR /addon
-CMD ["/addon/run.sh"]
+ENTRYPOINT ["/addon/run.sh"]
