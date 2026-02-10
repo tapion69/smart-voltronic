@@ -1,5 +1,5 @@
 name: "Smart Voltronic Node-RED"
-version: "1.0.1"
+version: "1.0.2"
 slug: smart_voltronic
 description: "Node-RED Voltronic plug & play: flow mis à jour via MAJ add-on"
 arch:
@@ -12,14 +12,8 @@ startup: services
 boot: auto
 init: false
 
-# (selon ton Supervisor récent)
-privileged:
-  - SYS_ADMIN
-
-devices:
-  - /dev/ttyUSB0
-  - /dev/ttyUSB1
-  - /dev/ttyUSB2
+# Accès aux périphériques série (recommandé pour /dev/serial/by-id/*)
+uart: true
 
 ports:
   1880/tcp: 1880
@@ -29,9 +23,9 @@ panel_icon: mdi:solar-power
 
 options:
   serial_ports:
-    - "/dev/ttyUSB0"
-    - "/dev/ttyUSB1"
-    - "/dev/ttyUSB2"
+    - "/dev/serial/by-id/CHANGE-ME-1"
+    - "/dev/serial/by-id/CHANGE-ME-2"
+    - "/dev/serial/by-id/CHANGE-ME-3"
   mqtt_host: "core-mosquitto"
   mqtt_port: 1883
   mqtt_user: ""
