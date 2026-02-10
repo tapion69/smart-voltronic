@@ -1,23 +1,52 @@
 #!/usr/bin/with-contenv bash
 set -euo pipefail
 
-# Charge bashio uniquement pour les logs (optionnel)
+# Logs (bashio si dispo)
 if [ -f /usr/lib/bashio/bashio.sh ]; then
   source /usr/lib/bashio/bashio.sh
   logi(){ bashio::log.info "$1"; }
   logw(){ bashio::log.warning "$1"; }
+  loge(){ bashio::log.error "$1"; }
 else
   logi(){ echo "[INFO] $1"; }
   logw(){ echo "[WARN] $1"; }
+  loge(){ echo "[ERROR] $1"; }
 fi
 
 logi "Smart Voltronic: init..."
 
-# Lire la config depuis /data/options.json (fiable)
 OPTS="/data/options.json"
 
-MQTT_HOST="$(jq -r '.mqtt_host // "core-mosquitto"' "$OPTS")"
-MQTT_PORT="$(jq -r '.mqtt_port // 1883' "$OPTS")"
+# Si options.json n'existe pas encore, on le crée avec des valeurs par défaut
+if [ ! -f "$OPTS" ]; then
+  logw "options.json introuvable, création avec valeurs par défaut: $OPTS"
+  cat > "$OPTS" <<'JSON'
+{
+  "mqtt_host": "core-mosquitto",
+  "mqtt_port": 1883,
+  "mqtt_user": "",
+  "mqtt_pass": "",
+  "serial_ports": ["", "", ""]
+}
+JSON
+fi
+
+# Helpers jq: valeur string avec fallback si vide OU null
+jq_str_or() {
+  local jq_expr="$1"
+  local fallback="$2"
+  jq -r "($jq_expr // \"\") | if (type==\"string\" and length>0) then . else \"$fallback\" end" "$OPTS"
+}
+
+jq_int_or() {
+  local jq_expr="$1"
+  local fallback="$2"
+  jq -r "($jq_expr // $fallback) | tonumber" "$OPTS" 2>/dev/null || echo "$fallback"
+}
+
+# Lecture options
+MQTT_HOST="$(jq_str_or '.mqtt_host' 'core-mosquitto')"
+MQTT_PORT="$(jq_int_or '.mqtt_port' 1883)"
 MQTT_USER="$(jq -r '.mqtt_user // ""' "$OPTS")"
 MQTT_PASS="$(jq -r '.mqtt_pass // ""' "$OPTS")"
 
@@ -30,14 +59,14 @@ logi "Serial1: ${SERIAL_1:-<empty>}"
 logi "Serial2: ${SERIAL_2:-<empty>}"
 logi "Serial3: ${SERIAL_3:-<empty>}"
 
-# Vérif chemins (utile pour /dev/serial/by-id/*)
+# Vérif ports série (utile pour /dev/serial/by-id/*)
 for p in "$SERIAL_1" "$SERIAL_2" "$SERIAL_3"; do
   if [ -n "$p" ] && [ ! -e "$p" ]; then
     logw "Port série introuvable: $p"
   fi
 done
 
-# Toujours réappliquer le flow (auto-update)
+# Appliquer le flow (auto-update)
 cp /addon/flows.json /data/flows.json
 
 # Escape safe pour sed
@@ -53,6 +82,14 @@ sed -i "s/__MQTT_PASS__/$(esc "$MQTT_PASS")/g" /data/flows.json
 sed -i "s/__SERIAL_1__/$(esc "$SERIAL_1")/g" /data/flows.json
 sed -i "s/__SERIAL_2__/$(esc "$SERIAL_2")/g" /data/flows.json
 sed -i "s/__SERIAL_3__/$(esc "$SERIAL_3")/g" /data/flows.json
+
+# Vérifier qu'il ne reste pas de placeholders
+if grep -q "__MQTT_HOST__\|__MQTT_PORT__\|__SERIAL_1__\|__SERIAL_2__\|__SERIAL_3__" /data/flows.json; then
+  loge "Placeholders encore présents dans /data/flows.json -> vérifie config.json (schema/options) et flows.json"
+  grep -n "__MQTT_HOST__\|__MQTT_PORT__\|__SERIAL_1__\|__SERIAL_2__\|__SERIAL_3__" /data/flows.json || true
+else
+  logi "OK: placeholders remplacés dans /data/flows.json"
+fi
 
 node -v
 logi "Starting Node-RED..."
