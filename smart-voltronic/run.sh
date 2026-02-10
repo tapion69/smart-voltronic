@@ -100,6 +100,14 @@ else
   logw "flows_cred.json absent -> Node-RED démarrera sans credentials chiffrés"
 fi
 
+# Debug flows_cred
+if [ -f /data/flows_cred.json ]; then
+  logi "flows_cred.json présent: $(wc -c </data/flows_cred.json) bytes"
+else
+  logw "flows_cred.json ABSENT dans /data"
+fi
+
+
 # Inject MQTT
 sed -i "s/__MQTT_HOST__/$(esc "$MQTT_HOST")/g" /data/flows.json
 sed -i "s/__MQTT_PORT__/$(esc "$MQTT_PORT")/g" /data/flows.json
