@@ -1,16 +1,14 @@
 module.exports = {
   uiPort: 1880,
   userDir: "/data",
-
-  // IMPORTANT : chemin absolu
   flowFile: "/data/flows.json",
 
-  // ✅ Rend le chiffrement des credentials STABLE entre redémarrages
-  // Mets une valeur unique à toi (longue) pour éviter tout souci
-  credentialSecret: "CHANGE_ME__smart_voltronic__long_random_secret",
+  // ✅ PAS de credentialSecret ici !
+  // Avec un secret, Node-RED attend flows_cred.json CHIFFRÉ.
+  // Sans secret, il le lit en JSON clair — ce que notre run.sh génère.
+  // credentialSecret: false  ← inutile, simplement ne pas le définir suffit.
 
   nodesDir: ["/opt/node_modules"],
-
   editorTheme: {
     projects: { enabled: false }
   }
