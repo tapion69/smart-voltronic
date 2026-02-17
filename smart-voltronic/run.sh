@@ -42,35 +42,26 @@ jq_int_or() {
 # Escape safe pour sed (flows.json uniquement)
 esc() { printf '%s' "$1" | sed -e 's/[\/&|\\]/\\&/g'; }
 
-# ---------- MQTT : HA service si dispo, sinon fallback options.json ----------
-MQTT_HOST=""
-MQTT_PORT=""
-MQTT_USER=""
-MQTT_PASS=""
+# ---------- MQTT : UNIQUEMENT options.json (pas d'auto Supervisor) ----------
+MQTT_HOST="$(jq_str_or '.mqtt_host' '')"
+MQTT_PORT="$(jq_int_or '.mqtt_port' 1883)"
+MQTT_USER="$(jq -r '.mqtt_user // .mqtt_username // ""' "$OPTS")"
+MQTT_PASS="$(jq -r '.mqtt_pass // .mqtt_password // ""' "$OPTS")"
 
-if [ -f /usr/lib/bashio/bashio.sh ]; then
-  if bashio::services.available mqtt >/dev/null 2>&1; then
-    MQTT_HOST="$(bashio::services mqtt host)"
-    MQTT_PORT="$(bashio::services mqtt port)"
-    MQTT_USER="$(bashio::services mqtt username)"
-    MQTT_PASS="$(bashio::services mqtt password)"
-    logi "MQTT (HA service): ${MQTT_HOST}:${MQTT_PORT} (user: ${MQTT_USER:-<none>})"
-  else
-    logw "MQTT service indisponible (API Supervisor). On utilise options.json."
-  fi
+# Affichage
+logi "MQTT (options.json): ${MQTT_HOST:-<empty>}:${MQTT_PORT} (user: ${MQTT_USER:-<none>})"
+
+# ✅ Forcer l'utilisateur à configurer
+if [ -z "${MQTT_HOST}" ]; then
+  loge "mqtt_host vide. Renseigne-le dans l'onglet Configuration de l'add-on."
+  loge "Exemples: 127.0.0.1 (Mosquitto sur HA), IP du broker, nom DNS..."
+  exit 1
 fi
 
-if [ -z "${MQTT_HOST}" ] || [ -z "${MQTT_PORT}" ]; then
-  MQTT_HOST="$(jq_str_or '.mqtt_host' 'core-mosquitto')"
-  MQTT_PORT="$(jq_int_or '.mqtt_port' 1883)"
-  MQTT_USER="$(jq -r '.mqtt_user // .mqtt_username // ""' "$OPTS")"
-  MQTT_PASS="$(jq -r '.mqtt_pass // .mqtt_password // ""' "$OPTS")"
-  logw "MQTT (fallback options.json): ${MQTT_HOST}:${MQTT_PORT} (user: ${MQTT_USER:-<none>})"
-fi
-
+# Si tu veux autoriser broker sans auth -> commente ce bloc
 if [ -z "${MQTT_USER}" ] || [ -z "${MQTT_PASS}" ]; then
-  loge "MQTT_USER ou MQTT_PASS vide -> Mosquitto refusera probablement la connexion."
-  loge "Vérifie la config de l'add-on dans l'UI HA (mqtt_user/mqtt_pass)."
+  loge "mqtt_user ou mqtt_pass vide. Renseigne-les dans l'onglet Configuration de l'add-on."
+  exit 1
 fi
 
 # ---------- Serial ports ----------
