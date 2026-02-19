@@ -62,38 +62,11 @@ logi "Serial1: ${SERIAL_1:-<empty>}"
 logi "Serial2: ${SERIAL_2:-<empty>}"
 logi "Serial3: ${SERIAL_3:-<empty>}"
 
-# ---------- Auth Node-RED ----------
-# Le mot de passe n'apparait JAMAIS en clair ici ni dans HA.
-# Seul le hash bcrypt est stocké dans /data (non versionné, local à HA uniquement).
-# Pour changer le mot de passe : générer un nouveau hash via "node-red-admin hash-pw"
-# et remplacer la valeur NR_ADMIN_HASH ci-dessous.
-
-NR_ADMIN_AUTH_FILE="/data/nr_adminauth.json"
-NR_ADMIN_USER="pi"
-# Hash bcrypt (cost 8) généré hors ligne — ne pas mettre le mot de passe en clair
-NR_ADMIN_HASH='HASH_A_REMPLACER'
-
-if [ "$NR_ADMIN_HASH" = "HASH_A_REMPLACER" ]; then
-  loge "Vous devez générer un hash bcrypt et le mettre dans NR_ADMIN_HASH dans run.sh"
-  loge "Commande : node-red-admin hash-pw"
-  exit 1
-fi
-
-# Créer le fichier d'auth une seule fois dans /data (jamais versionné sur GitHub)
-if [ ! -f "$NR_ADMIN_AUTH_FILE" ]; then
-  logi "Création de nr_adminauth.json..."
-  printf '{\n  "type": "credentials",\n  "users": [\n    {\n      "username": "%s",\n      "password": "%s",\n      "permissions": "*"\n    }\n  ]\n}\n' \
-    "$NR_ADMIN_USER" "$NR_ADMIN_HASH" > "$NR_ADMIN_AUTH_FILE"
-  logi "nr_adminauth.json créé"
-else
-  logi "nr_adminauth.json existant conservé"
-fi
-
 # ---------- Gestion du flows.json ----------
 # Logique de versioning :
-#   - Première installation                    -> copie du flows depuis l'addon
-#   - Version flows addon > version installée  -> mise à jour du flows
-#   - Version identique                        -> flows utilisateur conservé
+#   - Première installation                   -> copie du flows depuis l'addon
+#   - Version flows addon > version installée -> mise à jour du flows
+#   - Version identique                       -> flows utilisateur conservé
 
 ADDON_FLOWS_VERSION="$(cat /addon/flows_version.txt 2>/dev/null || echo '0.0.0')"
 INSTALLED_VERSION="$(cat /data/flows_version.txt 2>/dev/null || echo '')"
@@ -198,9 +171,6 @@ jq -n \
   > /data/flows_cred.json
 
 logi "flows_cred.json créé avec succès"
-
-logi "Starting Node-RED sur le port 1892..."
-exec node-red --userDir /data --settings /addon/settings.js
 
 logi "Starting Node-RED sur le port 1892..."
 exec node-red --userDir /data --settings /addon/settings.js
