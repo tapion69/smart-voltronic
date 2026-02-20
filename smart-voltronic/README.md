@@ -151,8 +151,7 @@ Après chaque modification :
 
 La liste détaillée des capteurs et paramètres est disponible ici :
 
-👉 https://github.com/TON_GITHUB/smart-voltronic-addon/blob/main/smart-voltronic/PARAMETERS.md](https://github.com/tapion69/smart-voltronic/blob/main/smart-voltronic/PARAMETERS.md
----
+👉 https://github.com/tapion69/smart-voltronic/blob/main/smart-voltronic/PARAMETERS.md
 
 # 🧩 À compléter
 
