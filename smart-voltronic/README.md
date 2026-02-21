@@ -9,7 +9,7 @@ https://github.com/tapion69/smart-voltronic/blob/main/smart-voltronic/README_FR.
 
 ☕ **Support the developers:**
 If you like this project, you can support future development here:
-buymeacoffee.com/tapion
+https://buymeacoffee.com/tapion
 
 ---
 
