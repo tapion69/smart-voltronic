@@ -19,29 +19,47 @@ Compatible with most models using the Voltronic protocol (Axpert, VM, MKS, MAX, 
 
 ### 🔎 Device information & status
 
-![Device info](smart-voltronic/docs/images/dashboard-overview.png)
+Monitor inverter status, firmware versions, warnings and fault details directly inside Home Assistant.
+
+This view provides quick access to essential diagnostic information and device identification.
+
+![Device info](docs/images/dashboard-overview.png)
 
 ---
 
 ### ⚙️ Inverter settings from Home Assistant
 
-![Settings](smart-voltronic/docs/images/inverter-settings.png)
+Change key inverter parameters directly from the Home Assistant interface:
+battery type, charging priority, voltage thresholds, grid settings and more.
+
+No need to use the inverter screen or external software.
+
+![Settings](docs/images/inverter-settings.png)
 
 ---
 
 ### ⚡ Real-time power monitoring
 
-![Power](smart-voltronic/docs/images/inverter-power.png)
+Track all critical electrical values in real time:
+AC output voltage and frequency, battery charge and discharge,
+grid usage and load statistics.
+
+Perfect for energy dashboards and automation.
+
+![Power](docs/images/inverter-power.png)
 
 ---
 
 ### ☀️ Solar production tracking
 
-![PV](smart-voltronic/docs/images/inverter-pv.png)
+Monitor photovoltaic production including MPPT inputs,
+PV voltage/current and daily, monthly and yearly solar statistics.
 
+Keep full visibility of your solar installation directly in Home Assistant.
 
+![PV](docs/images/inverter-pv.png)
 
-
+---
 
 # 🔧 Installation – RS232 Cable & USB Adapter
 
