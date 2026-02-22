@@ -1,6 +1,6 @@
 # Changelog – Smart Voltronic Add-on
 
-## v1.0.0 – Initial release
+## v1.3.7 – Initial release
 
 🎉 First functional release of the add-on.
 
