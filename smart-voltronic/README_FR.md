@@ -9,6 +9,41 @@ https://ko-fi.com/tapion69
 
 ---
 
+## 📸 Captures d’écran
+
+### 🔎 Informations & état de l’onduleur
+
+Surveillez l’état de l’onduleur, les firmwares, les avertissements et les défauts directement dans Home Assistant.
+
+![Device info](docs/images/dashboard-overview.png)
+
+---
+
+### ⚙️ Paramètres de l’onduleur depuis Home Assistant
+
+Modifiez les paramètres principaux directement depuis l’interface Home Assistant :
+type de batterie, priorité de charge, tensions, paramètres réseau et bien plus.
+
+![Settings](docs/images/inverter-settings.png)
+
+---
+
+### ⚡ Suivi de puissance en temps réel
+
+Suivez toutes les valeurs électriques importantes en temps réel :
+puissance AC, charge/décharge batterie, utilisation réseau et statistiques de charge.
+
+![Power](docs/images/inverter-power.png)
+
+---
+
+### ☀️ Suivi de la production solaire
+
+Surveillez la production photovoltaïque, les entrées MPPT et les statistiques solaires journalières, mensuelles et annuelles.
+
+![PV](docs/images/inverter-pv.png)
+
+
 Add-on Home Assistant permettant de **surveiller et piloter jusqu’à 3 onduleurs Voltronic / Axpert**.
 
 Compatible avec la majorité des modèles utilisant le protocole Voltronic (Axpert, VM, MKS, MAX, MAX II, MAX IV…).
