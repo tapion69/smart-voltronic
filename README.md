@@ -5,7 +5,7 @@
 
 ☕ **Support the developers:**
 If you like this project, you can support future development here:
-https://ko-fi.com/tapion69
+[![Support on Ko-fi](docs/images/kofi-button.png)](https://ko-fi.com/tapion69)
 
 ---
 
