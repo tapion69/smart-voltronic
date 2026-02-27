@@ -1,5 +1,8 @@
 # Changelog – Smart Voltronic Add-on
 
+## v1.4.4
+- Bug fixe
+
 ## v1.4.3
 
 ### ✨ New features
