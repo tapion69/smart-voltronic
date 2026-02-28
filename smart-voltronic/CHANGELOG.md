@@ -1,46 +1,37 @@
 # Changelog – Smart Voltronic Add-on
 
-🔄 Version 1.4.5
-🌍 Added Timezone Support
+## 🔄 Version 1.4.5
 
-New configurable timezone option in add-on settings
+### 🌍 Added Timezone Support
 
-Dropdown selection for common timezones
+* New configurable timezone option in add-on settings
+* Dropdown selection for common timezones
+* Custom timezone support (IANA format, e.g. `Europe/Athens`)
+* Used for accurate daily energy reset calculations
+* Fully handled inside the add-on (no Home Assistant configuration required)
 
-Custom timezone support (IANA format, e.g. Europe/Athens)
+### ⚡ New Sensor: Grid Energy Today
 
-Used for accurate daily energy reset calculations
+* Added `grid_today` energy sensor
+* Automatically calculated from `grid_power`
+* Daily reset based on configured timezone
+* Exposed via MQTT discovery
+* Works on all supported inverter models
 
-Fully handled inside the add-on (no Home Assistant configuration required)
+### 🌐 Translations
 
-⚡ New Sensor: Grid Energy Today
+* Added English and French translations
+* Improved configuration UI labels
 
-Added grid_today energy sensor
+### 🛠 Improvements
 
-Automatically calculated from grid_power
+* Safe timezone handling in run.sh
+* Robust daily energy reset logic
+* No breaking changes
 
-Daily reset based on configured timezone
+---
 
-Exposed via MQTT discovery
-
-Works on all supported inverter models
-
-🌐 Translations
-
-Added English and French translations
-
-Improved configuration UI labels
-
-🛠 Improvements
-
-Safe timezone handling in run.sh
-
-Robust daily energy reset logic
-
-No breaking changes
-
-## v1.4.4
-- Bug fixe
+Si tu veux une version un peu plus “marketing” ou plus technique (orientée développeurs), je peux aussi te la reformuler 👌
 
 ## v1.4.3
 
