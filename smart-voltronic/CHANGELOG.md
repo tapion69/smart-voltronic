@@ -1,4 +1,42 @@
 # Changelog – Smart Voltronic Add-on
+---
+
+## **v1.4.5 — Timezone support, Grid Today energy & UI translations**
+
+### ✨ New features
+
+* **Timezone selection added in add-on configuration**
+
+  * Users can now select their timezone directly from the add-on UI.
+  * Includes a dropdown with common timezones and a **CUSTOM** option.
+  * All daily counters now reset at midnight based on the selected timezone.
+
+* **New energy sensor: Grid Today**
+
+  * Added automatic daily energy calculation from `grid_power`.
+  * New Home Assistant sensor:
+
+    * **Grid Today (kWh)**
+  * Computed directly inside the add-on (no Home Assistant configuration required).
+
+### 🌍 Translations
+
+* Added **English and French translations** for add-on configuration.
+* Configuration options are now properly labeled in Home Assistant UI.
+
+### 🔧 Improvements
+
+* Daily energy calculations are now fully **timezone-aware**.
+* Node-RED now loads timezone directly from add-on options.
+* Normalize state updated to support daily grid energy integration.
+
+### 💡 Notes
+
+* No manual migration required.
+* Sensors will appear automatically after the add-on restart.
+
+---
+
 
 ## v1.4.4
 - Bug fixe
