@@ -28,7 +28,6 @@ ports:
 panel_icon: mdi:solar-power
 
 options:
-  inv1_protocol: "voltronic"
   inv1_link: "serial"
   inv1_serial_port: "/dev/serial/by-id/CHANGE-ME-1"
   inv1_gateway_host: ""
@@ -36,7 +35,6 @@ options:
   inv1_display_mode: "modern"
   inv1_output_priority_2choices: false
 
-  inv2_protocol: "voltronic"
   inv2_link: "serial"
   inv2_serial_port: "/dev/serial/by-id/CHANGE-ME-2"
   inv2_gateway_host: ""
@@ -44,7 +42,6 @@ options:
   inv2_display_mode: "modern"
   inv2_output_priority_2choices: false
 
-  inv3_protocol: "voltronic"
   inv3_link: "serial"
   inv3_serial_port: "/dev/serial/by-id/CHANGE-ME-3"
   inv3_gateway_host: ""
@@ -83,7 +80,6 @@ options:
   timezone_custom: ""
 
 schema:
-  inv1_protocol: list(voltronic|clone_voltronic)
   inv1_link: list(serial|gateway)
   inv1_serial_port: str?
   inv1_gateway_host: str?
@@ -91,7 +87,6 @@ schema:
   inv1_display_mode: list(modern|legacy_usb_sub_sbu)
   inv1_output_priority_2choices: bool
 
-  inv2_protocol: list(voltronic|clone_voltronic)
   inv2_link: list(serial|gateway)
   inv2_serial_port: str?
   inv2_gateway_host: str?
@@ -99,7 +94,6 @@ schema:
   inv2_display_mode: list(modern|legacy_usb_sub_sbu)
   inv2_output_priority_2choices: bool
 
-  inv3_protocol: list(voltronic|clone_voltronic)
   inv3_link: list(serial|gateway)
   inv3_serial_port: str?
   inv3_gateway_host: str?
